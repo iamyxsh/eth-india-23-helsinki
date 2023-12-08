@@ -3,6 +3,7 @@ import "react-toastify/dist/ReactToastify.css"
 import Head from "next/head"
 import Navbar from "@/components/Navbar";
 import Sidebar from "../Sidebar";
+import {ToastContainer} from "react-toastify";
 
 const PageHOC = ({children}: any) => {
 
@@ -20,6 +21,7 @@ const PageHOC = ({children}: any) => {
                     {children}
                 </div>
             </div>
+            <ToastContainer/>
         </>
     )
 }
