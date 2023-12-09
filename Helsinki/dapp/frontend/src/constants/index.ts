@@ -9,7 +9,7 @@ export const SIDEBAROPTIONS = [
     {
         name: "safe",
         imgUrl: safe,
-        link: "/Safe",
+        link: "/safe",
     },
     {
         name: "profile",

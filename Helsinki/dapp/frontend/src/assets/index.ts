@@ -15,6 +15,7 @@ import thirdweb from "./thirdweb.png"
 import solana from "./solana.png"
 import spinner from "./spinner.gif"
 import safe from "./safe.svg"
+import add from "./add.svg"
 
 export {
     spinner,
@@ -33,5 +34,6 @@ export {
     money,
     loader,
     thirdweb,
-    safe
+    safe,
+    add
 }

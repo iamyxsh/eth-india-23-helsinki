@@ -46,7 +46,6 @@ export const useWallet = () => {
     }, [connector, walletAddress])
 
     return {
-        // Data
         isConnectDialogOpen,
         walletAddress,
         walletConnectionStatus: ((walletConnectionStatus === "connected") ? (ethersSigner ? "connected" : "connecting") : walletConnectionStatus) as ("disconnected" | "connected" | "reconnecting" | "connecting"),
