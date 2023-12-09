@@ -1,31 +1,234 @@
-import { expect } from "chai";
-import { ethers } from "hardhat";
+import { ethers } from 'hardhat'
 
-describe("Wall", function () {
-  async function deployWallContract() {
-    const wallContractFactory = await ethers.getContractFactory("Wall");
-    const wallContract = await (await wallContractFactory.deploy()).waitForDeployment();
-    return wallContract;
+import { assert } from 'chai'
+
+describe('Helsinki', function () {
+  async function deployContract() {
+    const [alice] = await ethers.getSigners()
+    const contractFactory = await ethers.getContractFactory('Helsinki')
+    const contract = await (await contractFactory.deploy()).waitForDeployment()
+    await contract.init(
+      ethers.parseEther('1.0'),
+      ethers.parseEther('0.1'),
+      10,
+      alice.address,
+      2
+    )
+    return contract
   }
 
-  it("Posting message should work", async function () {
-    const wallContract = await deployWallContract();
+  it('should init proposal with correct data', async function () {
+    const contract = await deployContract()
 
-    const messageToPost = "Hello from the otter side!";
-    const tx = await wallContract.postMessage(messageToPost);
-    const rcpt = await tx.wait();
+    const proposal = await contract.proposalStorage()
+    const [alice] = await ethers.getSigners()
 
-    expect((rcpt?.logs[0] as any)?.args[0][0]).eq(messageToPost);
-  });
+    assert(proposal.safeAddress === alice.address)
+    assert(proposal.state.toString() == '0')
+  })
 
-  it("Retrieving messages should work", async function() {
-    const wallContract = await deployWallContract();
+  it('should change state when security is deposited', async function () {
+    const contract = await deployContract()
 
-    await (await wallContract.postMessage("Never gonna give you up")).wait();
-    await (await wallContract.postMessage("Never gonna let you down")).wait();
-    await (await wallContract.postMessage("Never gonna run around and desert you")).wait();
+    const [alice] = await ethers.getSigners()
+    const tx = await alice.sendTransaction({
+      to: await contract.getAddress(),
+      value: ethers.parseEther('0.1'),
+    })
 
-    const messagesPosted = await wallContract.getAllPostedMessages();
-    expect(messagesPosted.length).eq(3);
-  });
-});
+    await tx.wait()
+
+    const proposal = await contract.proposalStorage()
+
+    assert(proposal.state.toString() == '1')
+  })
+
+  it('should let user buy long tokens', async function () {
+    const contract = await deployContract()
+
+    const [alice] = await ethers.getSigners()
+    const tx = await alice.sendTransaction({
+      to: await contract.getAddress(),
+      value: ethers.parseEther('0.1'),
+    })
+
+    await tx.wait()
+
+    await contract.buyLong({ value: ethers.parseEther('0.1') })
+
+    const balance = await contract.balanceOf(alice.address, 0)
+
+    assert(balance > 0)
+  })
+
+  it('should let user buy short tokens', async function () {
+    const contract = await deployContract()
+
+    const [alice] = await ethers.getSigners()
+    const tx = await alice.sendTransaction({
+      to: await contract.getAddress(),
+      value: ethers.parseEther('0.1'),
+    })
+
+    await tx.wait()
+
+    await contract.buyShort({ value: ethers.parseEther('0.1') })
+
+    const balance = await contract.balanceOf(alice.address, 1)
+
+    assert(balance > 0)
+  })
+
+  it('should calculate interest', async function () {
+    const contract = await deployContract()
+
+    const [alice] = await ethers.getSigners()
+    const tx = await alice.sendTransaction({
+      to: await contract.getAddress(),
+      value: ethers.parseEther('0.1'),
+    })
+
+    await tx.wait()
+
+    await contract.buyShort({ value: ethers.parseEther('0.1') })
+
+    await contract.buyLong({ value: ethers.parseEther('1.0') })
+
+    const proposal = await contract.proposalStorage()
+
+    assert(proposal.state.toString() == '2')
+    assert(proposal.interest.toString() == '10')
+  })
+
+  it('should let user withdraw money', async function () {
+    const contract = await deployContract()
+
+    const [alice] = await ethers.getSigners()
+    const tx = await alice.sendTransaction({
+      to: await contract.getAddress(),
+      value: ethers.parseEther('0.1'),
+    })
+
+    await tx.wait()
+
+    await contract.buyShort({ value: ethers.parseEther('0.1') })
+
+    await contract.buyLong({ value: ethers.parseEther('1.0') })
+
+    const balance1 = await alice.provider.getBalance(alice.address)
+
+    await contract.withdraw()
+
+    const balance2 = await alice.provider.getBalance(alice.address)
+
+    assert(balance2 > balance1)
+  })
+
+  it('should let user pay emi', async function () {
+    const contract = await deployContract()
+
+    const [alice] = await ethers.getSigners()
+    const tx = await alice.sendTransaction({
+      to: await contract.getAddress(),
+      value: ethers.parseEther('0.1'),
+    })
+
+    await tx.wait()
+
+    await contract.buyShort({ value: ethers.parseEther('0.1') })
+
+    await contract.buyLong({ value: ethers.parseEther('1.0') })
+
+    await contract.withdraw()
+
+    let proposal = await contract.proposalStorage()
+
+    await contract.payEmi({ value: proposal.emiAmount })
+
+    proposal = await contract.proposalStorage()
+
+    assert(proposal.emisLeft.toString() == '9')
+  })
+
+  it('should let user foreclose payment', async function () {
+    const contract = await deployContract()
+
+    const [alice] = await ethers.getSigners()
+    const tx = await alice.sendTransaction({
+      to: await contract.getAddress(),
+      value: ethers.parseEther('0.1'),
+    })
+
+    await tx.wait()
+
+    await contract.buyShort({ value: ethers.parseEther('0.1') })
+
+    await contract.buyLong({ value: ethers.parseEther('1.0') })
+
+    await contract.withdraw()
+
+    let proposal = await contract.proposalStorage()
+
+    await contract.foreclose({ value: proposal.emisLeft * proposal.emiAmount })
+
+    proposal = await contract.proposalStorage()
+
+    assert(proposal.emisLeft.toString() == '0')
+  })
+
+  it('should let longer win', async function () {
+    const contract = await deployContract()
+
+    const [alice] = await ethers.getSigners()
+    const tx = await alice.sendTransaction({
+      to: await contract.getAddress(),
+      value: ethers.parseEther('0.1'),
+    })
+
+    await tx.wait()
+
+    await contract.buyShort({ value: ethers.parseEther('0.1') })
+
+    await contract.buyLong({ value: ethers.parseEther('1.0') })
+
+    await contract.withdraw()
+
+    let proposal = await contract.proposalStorage()
+
+    await contract.foreclose({
+      value: proposal.emisLeft * proposal.emiAmount,
+    })
+
+    proposal = await contract.proposalStorage()
+    const winner = await contract.winner()
+
+    assert(winner.toString() == '0')
+  })
+
+  it('should let longer sell token', async function () {
+    const contract = await deployContract()
+
+    const [alice] = await ethers.getSigners()
+    const tx = await alice.sendTransaction({
+      to: await contract.getAddress(),
+      value: ethers.parseEther('0.1'),
+    })
+
+    await tx.wait()
+
+    await contract.buyShort({ value: ethers.parseEther('0.1') })
+
+    await contract.buyLong({ value: ethers.parseEther('1.0') })
+
+    await contract.withdraw()
+    let proposal = await contract.proposalStorage()
+
+    await contract.foreclose({
+      value: proposal.emisLeft * proposal.emiAmount,
+    })
+
+    proposal = await contract.proposalStorage()
+
+    await contract.sellLong()
+  })
+})
