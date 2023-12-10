@@ -28,7 +28,7 @@ const _abi = [
       },
       {
         internalType: "address",
-        name: "safeAddress",
+        name: "walletAddress",
         type: "address",
       },
       {

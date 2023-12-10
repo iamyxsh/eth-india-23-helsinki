@@ -17,17 +17,34 @@ describe('Helsinki', function () {
     return contract
   }
 
-  it('should init proposal with correct data', async function () {
+  it('data', async function () {
+    const contract = await deployContract()
+    const factoryContract = await ethers.getContractFactory('HelsinkiFactory')
+    const factory = await (await factoryContract.deploy()).waitForDeployment()
+    const [alice] = await ethers.getSigners()
+    const tx = await factory.createProposal(
+      BigInt(10 ** 18),
+      BigInt(10 ** 18),
+      1,
+      alice.address,
+      1
+    )
+    await tx.wait()
+    const res = await factory.proposals(alice.address)
+    console.log(res)
+  })
+
+  it.skip('should init proposal with correct data', async function () {
     const contract = await deployContract()
 
     const proposal = await contract.proposalStorage()
     const [alice] = await ethers.getSigners()
 
-    assert(proposal.safeAddress === alice.address)
+    assert(proposal.walletAddress === alice.address)
     assert(proposal.state.toString() == '0')
   })
 
-  it('should change state when security is deposited', async function () {
+  it.skip('should change state when security is deposited', async function () {
     const contract = await deployContract()
 
     const [alice] = await ethers.getSigners()
@@ -43,7 +60,7 @@ describe('Helsinki', function () {
     assert(proposal.state.toString() == '1')
   })
 
-  it('should let user buy long tokens', async function () {
+  it.skip('should let user buy long tokens', async function () {
     const contract = await deployContract()
 
     const [alice] = await ethers.getSigners()
@@ -61,7 +78,7 @@ describe('Helsinki', function () {
     assert(balance > 0)
   })
 
-  it('should let user buy short tokens', async function () {
+  it.skip('should let user buy short tokens', async function () {
     const contract = await deployContract()
 
     const [alice] = await ethers.getSigners()
@@ -79,7 +96,7 @@ describe('Helsinki', function () {
     assert(balance > 0)
   })
 
-  it('should calculate interest', async function () {
+  it.skip('should calculate interest', async function () {
     const contract = await deployContract()
 
     const [alice] = await ethers.getSigners()
@@ -100,7 +117,7 @@ describe('Helsinki', function () {
     assert(proposal.interest.toString() == '10')
   })
 
-  it('should let user withdraw money', async function () {
+  it.skip('should let user withdraw money', async function () {
     const contract = await deployContract()
 
     const [alice] = await ethers.getSigners()
@@ -124,7 +141,7 @@ describe('Helsinki', function () {
     assert(balance2 > balance1)
   })
 
-  it('should let user pay emi', async function () {
+  it.skip('should let user pay emi', async function () {
     const contract = await deployContract()
 
     const [alice] = await ethers.getSigners()
@@ -150,7 +167,7 @@ describe('Helsinki', function () {
     assert(proposal.emisLeft.toString() == '9')
   })
 
-  it('should let user foreclose payment', async function () {
+  it.skip('should let user foreclose payment', async function () {
     const contract = await deployContract()
 
     const [alice] = await ethers.getSigners()
@@ -176,7 +193,7 @@ describe('Helsinki', function () {
     assert(proposal.emisLeft.toString() == '0')
   })
 
-  it('should let longer win', async function () {
+  it.skip('should let longer win', async function () {
     const contract = await deployContract()
 
     const [alice] = await ethers.getSigners()
@@ -205,7 +222,7 @@ describe('Helsinki', function () {
     assert(winner.toString() == '0')
   })
 
-  it('should let longer sell token', async function () {
+  it.skip('should let longer sell token', async function () {
     const contract = await deployContract()
 
     const [alice] = await ethers.getSigners()

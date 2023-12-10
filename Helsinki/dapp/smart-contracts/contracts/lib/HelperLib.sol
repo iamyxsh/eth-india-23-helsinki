@@ -25,7 +25,7 @@ library HelperLib {
         uint8 emisLeft;
         uint8 interest;
         uint8 tenure;
-        address safeAddress;
+        address walletAddress;
         State state;
     }
 

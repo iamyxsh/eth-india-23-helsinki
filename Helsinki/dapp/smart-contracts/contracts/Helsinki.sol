@@ -9,9 +9,7 @@ import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/math/Math.sol";
 import {HelperLib} from "./lib/HelperLib.sol";
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
-import {BancorFormula} from "./Bancor/Bancor.sol";
 import {BondingCurve} from "./BondingCurve.sol";
-import {MaxGasPrice} from "./MaxGasPrice.sol";
 
 import "hardhat/console.sol";
 
@@ -20,7 +18,7 @@ interface IHelsinki {
         uint256 amount,
         uint256 security,
         uint8 tenure,
-        address safeAddress,
+        address walletAddress,
         uint256 slope
     ) external;
 }
@@ -30,8 +28,7 @@ contract Helsinki is
     ERC1155Supply,
     ERC1155Burnable,
     ReentrancyGuard,
-    BondingCurve,
-    MaxGasPrice
+    BondingCurve
 {
     using Math for uint256;
 
@@ -90,13 +87,13 @@ contract Helsinki is
         uint256 amount,
         uint256 security,
         uint8 tenure,
-        address safeAddress,
+        address walletAddress,
         uint32 _slope
     ) external nonReentrant {
         proposalStorage.amount = amount;
         proposalStorage.security = security;
         proposalStorage.tenure = tenure;
-        proposalStorage.safeAddress = safeAddress;
+        proposalStorage.walletAddress = walletAddress;
         proposalStorage.state = HelperLib.State.CREATED;
         slope = _slope;
 
@@ -105,10 +102,10 @@ contract Helsinki is
         proposalStorage.emiAmount = 0;
         proposalStorage.startTime = block.timestamp;
 
-        _owner = safeAddress;
+        _owner = walletAddress;
 
-        _mint(safeAddress, uint256(HelperLib.TokenType.LONGERS), amount, "");
-        _mint(safeAddress, uint256(HelperLib.TokenType.SHORTERS), amount, "");
+        _mint(walletAddress, uint256(HelperLib.TokenType.LONGERS), amount, "");
+        _mint(walletAddress, uint256(HelperLib.TokenType.SHORTERS), amount, "");
     }
 
     function innerMint(uint256 amount, HelperLib.TokenType tokenId) internal {

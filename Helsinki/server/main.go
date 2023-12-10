@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/iamyxsh/helsinki/server/handlers"
 	"github.com/iamyxsh/helsinki/server/utils"
 	"log"
@@ -17,6 +18,8 @@ func main() {
 		return c.SendString("pong")
 	})
 
+	app.Use(cors.New())
+
 	app.Post("/api/name", handlers.CreateName)
 	app.Get("/api/name/:address", handlers.GetNameByAddress)
 
@@ -26,6 +29,8 @@ func main() {
 	app.Post("/api/proposal/dislike/:address", handlers.DislikePost)
 	app.Post("/api/proposal/fund/:address", handlers.FundProposal)
 	app.Post("/api/proposal/publish/:address", handlers.PublishProposal)
+
+	app.Get("/api/proposals", handlers.GetAllProposals)
 
 	log.Fatal(app.Listen(":8080"))
 }

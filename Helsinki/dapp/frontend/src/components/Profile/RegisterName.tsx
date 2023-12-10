@@ -4,20 +4,24 @@ import {useState} from "react";
 import Button from "@/components/Button";
 import {NameService} from "@/services/name";
 import {toast} from "react-toastify";
+import {useRouter} from "next/router";
 
 const nameService = new NameService()
 
 export const RegisterName = () => {
     const {walletAddress} = useWallet()
+    const router = useRouter()
     const [name, setName] = useState<string>("")
 
     const registerName = async () => {
         await nameService.createName(walletAddress!, name)
+
         toast.success("Registered successfully")
+        await router.push("/")
     }
 
     return (
-        <div className={"h-full w-full flex flex-col justify-between gap-10"}>
+        <div className={"h-full w-full flex flex-col justify-between gap-10 p-10"}>
             <h1 className={"text-2xl text-center text-white"}>Register with your name</h1>
             <div className={"flex flex-col justify-between items-start"}>
                 <h1 className={"text-primary"}>{walletAddress}</h1>

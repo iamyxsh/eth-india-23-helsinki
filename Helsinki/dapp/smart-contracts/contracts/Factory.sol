@@ -5,24 +5,26 @@ import {IHelsinki} from "./Helsinki.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 
 contract HelsinkiFactory is Ownable {
-    mapping(address => address) private proposals;
+    mapping(address => address) public proposals;
     address public helsinkiAddress;
 
-    constructor(address _helsinkiAddress) Ownable(msg.sender) {
-        helsinkiAddress = _helsinkiAddress;
+    constructor() Ownable(msg.sender) {}
+
+    function setMaster(address masterCopy) external {
+        helsinkiAddress = masterCopy;
     }
 
     function createProposal(
         uint256 amount,
         uint256 security,
         uint8 tenure,
-        address safeAddress,
-        uint256 reserve
+        address walletAddress,
+        uint256 slope
     ) external {
         address clone = createClone(helsinkiAddress);
         IHelsinki helsiki = IHelsinki(clone);
-        helsiki.init(amount, security, tenure, safeAddress, reserve);
-        proposals[safeAddress] = address(clone);
+        helsiki.init(amount, security, tenure, walletAddress, slope);
+        proposals[walletAddress] = address(clone);
     }
 
     function setBetAddress(address _address) external onlyOwner {

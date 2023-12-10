@@ -1,10 +1,12 @@
+import axios from "axios";
+
 export class ProposalService {
 
     constructor() {
     }
 
-    async getProposal(safeAddress: string): Promise<string | undefined> {
-        return "This is a proposal"
+    async getProposal(address: string): Promise<string | undefined> {
+        return axios.get(`http://localhost:8080/api/proposal/${address}?type=walletAddress`).then(res => res.data)
     }
 
     async createProposal(safeAddress: string): Promise<void> {

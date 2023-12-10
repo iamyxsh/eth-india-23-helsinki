@@ -14,13 +14,12 @@ type CreateNameReq struct {
 }
 
 type CreateProposalReq struct {
-	SafeAddress     string   `json:"safeAddress"`
-	ProposalAddress string   `json:"proposalAddress"`
-	Signatories     []string `json:"signatories"`
-	Data            string   `json:"data"`
-	LoanAmount      string   `json:"loanAmount"`
-	Tenure          int      `json:"tenure"`
-	Threshold       int      `json:"threshold"`
+	WalletAddress   string `json:"walletAddress"`
+	ProposalAddress string `json:"proposalAddress"`
+	Data            string `json:"data"`
+	LoanAmount      string `json:"loanAmount"`
+	Tenure          int    `json:"tenure"`
+	Name            string `json:"name"`
 }
 
 func CreateName(c *fiber.Ctx) error {
@@ -54,17 +53,16 @@ func CreateProposal(c *fiber.Ctx) error {
 	securityAmount.Div(securityAmount, big.NewInt(100))
 	user := models.Proposal{
 		LoanAmount:      body.LoanAmount,
-		SafeAddress:     body.SafeAddress,
+		WalletAddress:   body.WalletAddress,
 		ProposalAddress: body.ProposalAddress,
 		Tenure:          body.Tenure,
-		Signatories:     body.Signatories,
 		Data:            body.Data,
 		SecurityAmount:  securityAmount.String(),
 		Likes:           0,
 		Dislikes:        0,
-		Threshold:       body.Threshold,
 		IsFunded:        false,
 		Published:       false,
+		Name:            body.Name,
 	}
 
 	err := mgm.Coll(&user).Create(&user)
@@ -98,12 +96,17 @@ func GetProposal(c *fiber.Ctx) error {
 	coll := mgm.Coll(proposal)
 
 	err := coll.First(bson.M{filterType: address}, proposal)
+
 	if err != nil {
+		if err.Error() == "mongo: no documents in result" {
+			return c.Status(200).JSON(fiber.Map{})
+		}
+
 		return c.Status(500).SendString(err.Error())
 	}
 
 	return c.JSON(fiber.Map{
-		"safeAddress":     proposal.SafeAddress,
+		"walletAddress":   proposal.WalletAddress,
 		"proposalAddress": proposal.ProposalAddress,
 		"threshold":       proposal.Threshold,
 		"tenure":          proposal.Tenure,
@@ -204,4 +207,26 @@ func PublishProposal(c *fiber.Ctx) error {
 	}
 
 	return c.SendStatus(200)
+}
+
+func GetAllProposals(c *fiber.Ctx) error {
+	proposal := &models.Proposal{}
+	result := []models.Proposal{}
+	coll := mgm.Coll(proposal)
+
+	err := coll.SimpleFind(&result, bson.M{})
+	if err != nil {
+		return c.Status(500).SendString(err.Error())
+	}
+
+	proposal.Published = true
+
+	err = mgm.Coll(proposal).Update(proposal)
+	if err != nil {
+		return c.Status(500).SendString(err.Error())
+	}
+
+	return c.JSON(fiber.Map{
+		"result": result,
+	})
 }

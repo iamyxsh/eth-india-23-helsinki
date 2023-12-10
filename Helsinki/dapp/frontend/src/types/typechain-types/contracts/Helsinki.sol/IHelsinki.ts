@@ -86,7 +86,7 @@ export interface IHelsinki extends BaseContract {
       amount: BigNumberish,
       security: BigNumberish,
       tenure: BigNumberish,
-      safeAddress: AddressLike,
+      walletAddress: AddressLike,
       slope: BigNumberish
     ],
     [void],
@@ -104,7 +104,7 @@ export interface IHelsinki extends BaseContract {
       amount: BigNumberish,
       security: BigNumberish,
       tenure: BigNumberish,
-      safeAddress: AddressLike,
+      walletAddress: AddressLike,
       slope: BigNumberish
     ],
     [void],

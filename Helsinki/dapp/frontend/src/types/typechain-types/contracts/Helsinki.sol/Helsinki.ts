@@ -42,7 +42,6 @@ export interface HelsinkiInterface extends Interface {
       | "foreclose"
       | "init"
       | "isApprovedForAll"
-      | "maxGasPrice"
       | "owner"
       | "payEmi"
       | "poolBalance"
@@ -128,10 +127,6 @@ export interface HelsinkiInterface extends Interface {
     functionFragment: "isApprovedForAll",
     values: [AddressLike, AddressLike]
   ): string;
-  encodeFunctionData(
-    functionFragment: "maxGasPrice",
-    values?: undefined
-  ): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
   encodeFunctionData(functionFragment: "payEmi", values?: undefined): string;
   encodeFunctionData(
@@ -215,10 +210,6 @@ export interface HelsinkiInterface extends Interface {
   decodeFunctionResult(functionFragment: "init", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "isApprovedForAll",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "maxGasPrice",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
@@ -467,7 +458,7 @@ export interface Helsinki extends BaseContract {
       amount: BigNumberish,
       security: BigNumberish,
       tenure: BigNumberish,
-      safeAddress: AddressLike,
+      walletAddress: AddressLike,
       _slope: BigNumberish
     ],
     [void],
@@ -479,8 +470,6 @@ export interface Helsinki extends BaseContract {
     [boolean],
     "view"
   >;
-
-  maxGasPrice: TypedContractMethod<[], [bigint], "view">;
 
   owner: TypedContractMethod<[], [string], "view">;
 
@@ -515,7 +504,7 @@ export interface Helsinki extends BaseContract {
         emisLeft: bigint;
         interest: bigint;
         tenure: bigint;
-        safeAddress: string;
+        walletAddress: string;
         state: bigint;
       }
     ],
@@ -661,7 +650,7 @@ export interface Helsinki extends BaseContract {
       amount: BigNumberish,
       security: BigNumberish,
       tenure: BigNumberish,
-      safeAddress: AddressLike,
+      walletAddress: AddressLike,
       _slope: BigNumberish
     ],
     [void],
@@ -674,9 +663,6 @@ export interface Helsinki extends BaseContract {
     [boolean],
     "view"
   >;
-  getFunction(
-    nameOrSignature: "maxGasPrice"
-  ): TypedContractMethod<[], [bigint], "view">;
   getFunction(
     nameOrSignature: "owner"
   ): TypedContractMethod<[], [string], "view">;
@@ -715,7 +701,7 @@ export interface Helsinki extends BaseContract {
         emisLeft: bigint;
         interest: bigint;
         tenure: bigint;
-        safeAddress: string;
+        walletAddress: string;
         state: bigint;
       }
     ],

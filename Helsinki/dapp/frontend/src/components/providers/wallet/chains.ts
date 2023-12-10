@@ -1,4 +1,4 @@
-import {goerli, mainnet, polygon, polygonMumbai, polygonZkEvm, polygonZkEvmTestnet} from 'wagmi/chains';
+import {sepolia} from 'wagmi/chains';
 import {Chain} from 'wagmi';
 
 const hardhat: Chain = {
@@ -40,12 +40,5 @@ const mumbai: Chain = {
 }
 
 export const supportedChains = [
-    hardhat,
-    mainnet,
-    goerli,
-    polygon,
-    polygonMumbai,
-    polygonZkEvm,
-    polygonZkEvmTestnet,
-    mumbai
+    sepolia,
 ]

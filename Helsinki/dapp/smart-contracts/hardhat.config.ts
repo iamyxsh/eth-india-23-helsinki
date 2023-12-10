@@ -61,6 +61,11 @@ const config: HardhatUserConfig = {
       },
       accounts: [process.env.PRIVATE_KEY_DEPLOYER as string],
     },
+    sepolia: {
+      url: 'https://rpc.sepolia.org	', // Replace with the actual RPC URL
+      accounts: [process.env.PRIVATE_KEY_DEPLOYER as string], // Replace with the private key of your account on this network
+      chainId: 11155111, // Replace with the actual chain ID
+    },
   },
   watcher: {
     test: {

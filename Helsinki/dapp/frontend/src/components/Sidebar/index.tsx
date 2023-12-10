@@ -3,9 +3,13 @@ import Link from "next/link"
 import React from "react"
 import {SIDEBAROPTIONS} from "@/constants";
 import {logo, logout} from "@/assets";
+import {useWallet} from "@/hooks/useWallet";
+import {useRouter} from "next/router";
 
 
 const Sidebar = () => {
+    const router = useRouter()
+    const {disconnectWallet} = useWallet()
     return (
         <div className="flex w-full h-screen flex-col justify-around items-center mx-7">
             <div
@@ -37,6 +41,9 @@ const Sidebar = () => {
                     <div
                         className="w-[48px] h-[48px] cursor-pointer"
                         onClick={() => {
+                            disconnectWallet()
+                            router.push("/")
+
                         }}
                     >
                         <Image

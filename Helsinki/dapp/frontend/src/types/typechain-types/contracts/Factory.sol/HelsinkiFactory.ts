@@ -29,8 +29,10 @@ export interface HelsinkiFactoryInterface extends Interface {
       | "createProposal"
       | "helsinkiAddress"
       | "owner"
+      | "proposals"
       | "renounceOwnership"
       | "setBetAddress"
+      | "setMaster"
       | "transferOwnership"
   ): FunctionFragment;
 
@@ -52,11 +54,19 @@ export interface HelsinkiFactoryInterface extends Interface {
   ): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
   encodeFunctionData(
+    functionFragment: "proposals",
+    values: [AddressLike]
+  ): string;
+  encodeFunctionData(
     functionFragment: "renounceOwnership",
     values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "setBetAddress",
+    values: [AddressLike]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setMaster",
     values: [AddressLike]
   ): string;
   encodeFunctionData(
@@ -73,6 +83,7 @@ export interface HelsinkiFactoryInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "proposals", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "renounceOwnership",
     data: BytesLike
@@ -81,6 +92,7 @@ export interface HelsinkiFactoryInterface extends Interface {
     functionFragment: "setBetAddress",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "setMaster", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "transferOwnership",
     data: BytesLike
@@ -148,8 +160,8 @@ export interface HelsinkiFactory extends BaseContract {
       amount: BigNumberish,
       security: BigNumberish,
       tenure: BigNumberish,
-      safeAddress: AddressLike,
-      reserve: BigNumberish
+      walletAddress: AddressLike,
+      slope: BigNumberish
     ],
     [void],
     "nonpayable"
@@ -159,10 +171,18 @@ export interface HelsinkiFactory extends BaseContract {
 
   owner: TypedContractMethod<[], [string], "view">;
 
+  proposals: TypedContractMethod<[arg0: AddressLike], [string], "view">;
+
   renounceOwnership: TypedContractMethod<[], [void], "nonpayable">;
 
   setBetAddress: TypedContractMethod<
     [_address: AddressLike],
+    [void],
+    "nonpayable"
+  >;
+
+  setMaster: TypedContractMethod<
+    [masterCopy: AddressLike],
     [void],
     "nonpayable"
   >;
@@ -184,8 +204,8 @@ export interface HelsinkiFactory extends BaseContract {
       amount: BigNumberish,
       security: BigNumberish,
       tenure: BigNumberish,
-      safeAddress: AddressLike,
-      reserve: BigNumberish
+      walletAddress: AddressLike,
+      slope: BigNumberish
     ],
     [void],
     "nonpayable"
@@ -197,11 +217,17 @@ export interface HelsinkiFactory extends BaseContract {
     nameOrSignature: "owner"
   ): TypedContractMethod<[], [string], "view">;
   getFunction(
+    nameOrSignature: "proposals"
+  ): TypedContractMethod<[arg0: AddressLike], [string], "view">;
+  getFunction(
     nameOrSignature: "renounceOwnership"
   ): TypedContractMethod<[], [void], "nonpayable">;
   getFunction(
     nameOrSignature: "setBetAddress"
   ): TypedContractMethod<[_address: AddressLike], [void], "nonpayable">;
+  getFunction(
+    nameOrSignature: "setMaster"
+  ): TypedContractMethod<[masterCopy: AddressLike], [void], "nonpayable">;
   getFunction(
     nameOrSignature: "transferOwnership"
   ): TypedContractMethod<[newOwner: AddressLike], [void], "nonpayable">;
